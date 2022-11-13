@@ -4,16 +4,16 @@ date_create DATETIME,
 date_update DATETAIME,
 knowledge_level TEXT,  -- Уровень знания
 appemtps_count INTEGER DEFAULT 0,
-id_eng INTEGER,
+id_en INTEGER,
 id_ru INTEGER,
-FOREIGN KEY (id_eng) REFERENCES eng (id),
-FOREIGN KEY (id_ru) REFERENCES ru (id)
+FOREIGN KEY (id_en) REFERENCES en (id) ON DELETE CASCADE,
+FOREIGN KEY (id_ru) REFERENCES ru (id) ON DELETE CASCADE 
 );
 
-CREATE TABLE eng (
+CREATE TABLE en (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
-value TEXT NOT NULL);
+en_value TEXT NOT NULL);
 
 CREATE TABLE ru (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
-value TEXT NOT NULL);
+ru_value TEXT NOT NULL);
