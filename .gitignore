@@ -1,2 +1,4 @@
-venv_eng_simulator*
+venv*
 __pycache__*
+*.db
+*.csv
