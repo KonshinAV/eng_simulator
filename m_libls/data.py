@@ -2,12 +2,14 @@ import os
 import sqlite3
 import datetime
 import csv
+import openpyxl
 
 now = datetime.datetime.now()
 
-class sqlile_db:
+class SqlileDb:
     def __init__(self, path ):
         self.db_path = path
+        print (self.db_path)
         # self.db_connection = None
         # self.db_cursor = None
         if os.path.exists(self.db_path) == False: 
@@ -91,15 +93,16 @@ class sqlile_db:
     def import_data (self):
         pass
 
-    def export_data (self, file_path='export_data.csv'):
-
+    def export_data (self, file_path="default.csv"):
+        
+        if file_path == 'default.csv': file_path = f"export_data.csv"
         data = self.get_all_phrases()
         
         export_header = data['header']
         export_data = data['data']
 
         with open(file_path, 'w', encoding='UTF8', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames = export_header)
+            writer = csv.DictWriter(f, fieldnames = export_header, delimiter=';')
             writer.writeheader()
             writer.writerows(export_data)
 
@@ -107,3 +110,37 @@ class sqlile_db:
     def close_connetion (self):
         self.db_cursor.close()
         self.db_connection.close()
+
+
+
+class ImportPhrasesFile:
+
+    def __init__(self) -> None:
+        if not os.path.exists('import.xlsx'):
+            print (">>>File import.xlsx has been created")
+            self.create_skeloton_import_file ()
+        else:
+            print (">>> File import.xlsx already exists")
+
+    
+    def create_skeloton_import_file (self):
+        wb = openpyxl.Workbook()
+        wsheet = wb.active
+        wsheet.title = "Phrases"
+        wsheet['A1'] = "En"
+        wsheet['B1'] = "Ru"
+        wb.save(filename = 'import.xlsx')
+
+    def data (self):
+        wb = openpyxl.load_workbook('import.xlsx')
+        sheet = wb.active
+        rows = sheet.max_row
+        cols = 2
+        data = []
+        for i in range(2, rows + 1):
+            string = ''
+            data.append([])
+            for j in range(1, cols + 1):
+                cell = sheet.cell(row = i, column = j)
+                data[i-2].append(cell.value) 
+        return (data)
