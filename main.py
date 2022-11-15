@@ -28,9 +28,9 @@ def generate_data (sql):
 
 (sql,import_phrases_file) = initial ()
 
-# generate_data(sql=sql)
+generate_data(sql=sql)
 data = sql.get_all_phrases()
 sql.export_data()
-import_phrases_file.data()
+
 
 sql.close_connetion()

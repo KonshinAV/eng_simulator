@@ -112,7 +112,6 @@ class SqlileDb:
         self.db_connection.close()
 
 
-
 class ImportPhrasesFile:
 
     def __init__(self) -> None:
@@ -136,11 +135,16 @@ class ImportPhrasesFile:
         sheet = wb.active
         rows = sheet.max_row
         cols = 2
-        data = []
+        tmp = []
         for i in range(2, rows + 1):
             string = ''
-            data.append([])
+            tmp.append([])
             for j in range(1, cols + 1):
                 cell = sheet.cell(row = i, column = j)
-                data[i-2].append(cell.value) 
-        return (data)
+                tmp[i-2].append(cell.value) 
+        data = []
+        keys = ("en","ru")
+        for i in tmp: data.append(dict(zip(keys,i)))
+        wb.close()
+        
+        return data
