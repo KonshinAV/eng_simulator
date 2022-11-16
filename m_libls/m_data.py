@@ -9,7 +9,7 @@ now = datetime.datetime.now()
 class SqlileDb:
     def __init__(self, path ):
         self.db_path = path
-        print (self.db_path)
+        # print (self.db_path)
         # self.db_connection = None
         # self.db_cursor = None
         if os.path.exists(self.db_path) == False: 
@@ -35,6 +35,7 @@ class SqlileDb:
         # self.db_cursor.close()
     
     def get_all_phrases (self):
+        """"""
         self.db_cursor.execute("""
                                SELECT phrases.id, 
                                     phrases.date_create,
@@ -42,7 +43,7 @@ class SqlileDb:
                                     phrases.knowledge_level,
                                     en.en_value, 
                                     ru.ru_value, 
-                                    phrases.appemtps_count
+                                    phrases.attemtps_count
                                 FROM phrases
                                 JOIN en ON phrases.id_en = en.id
                                 JOIN ru ON phrases.id_ru = ru.id
@@ -63,34 +64,63 @@ class SqlileDb:
     
     def add_prhase (self, value_en, value_ru):
         # Добвляем запись в таблицу en
-        self.db_cursor.execute (f"""INSERT INTO en (id, en_value) 
-                                VALUES (?,?);""", (None,value_en,))
-        self.db_connection.commit()
-        id_en = self.db_cursor.lastrowid
+        en_can_be_added = False
+        ru_can_be_added = False
         
-        # Добвляем запись в таблицу ru
-        self.db_cursor.execute (f"""INSERT INTO ru (id, ru_value) 
-                                VALUES (?,?);""", (None, value_ru,))
-        self.db_connection.commit()
-        id_ru = self.db_cursor.lastrowid
-        
-        # Добвляем запись в таблицу phrases
-        self.db_cursor.execute (f"""INSERT INTO phrases (
-                                id, 
-                                date_create, 
-                                date_update, 
-                                knowledge_level, 
-                                appemtps_count, 
-                                id_en, 
-                                id_ru) 
-                                VALUES (?,?,?,?,?,?,?);""", 
-                                (None, now, now, '', 0, id_en, id_ru,))
-        self.db_connection.commit()
+        self.db_cursor.execute (f"SELECT en_value FROM en")
+        en_data =list (str(rec[0]).lower().strip() for rec in self.db_cursor.fetchall())
+        # print(type (en_data), en_data)
+        if str(value_en).lower().strip() in en_data: 
+            print (f"Value {value_en} is alredy in list")
+        else:
+            en_can_be_added = True
+            # print (f"Value {value_en} can be added")
+            
+        self.db_cursor.execute (f"SELECT ru_value FROM ru")
+        ru_data =list (str(rec[0]).lower().strip() for rec in self.db_cursor.fetchall())
+        # print(type (ru_data), ru_data)
+        if str(value_ru).lower().strip() in ru_data: 
+            print (f"Value {value_ru} is alredy in list")
+        else:
+            ru_can_be_added = True
+            
+        if en_can_be_added == True and ru_can_be_added == True:    
+            self.db_cursor.execute (f"""INSERT INTO en (id, en_value) 
+                                    VALUES (?,?);""", (None,value_en,))
+            self.db_connection.commit()
+            id_en = self.db_cursor.lastrowid
+            
+            # Добвляем запись в таблицу ru
+            self.db_cursor.execute (f"""INSERT INTO ru (id, ru_value) 
+                                    VALUES (?,?);""", (None, value_ru,))
+            self.db_connection.commit()
+            id_ru = self.db_cursor.lastrowid
+            
+            # Добвляем запись в таблицу phrases
+            self.db_cursor.execute (f"""INSERT INTO phrases (
+                                    id, 
+                                    date_create, 
+                                    date_update, 
+                                    knowledge_level, 
+                                    attemtps_count, 
+                                    id_en, 
+                                    id_ru) 
+                                    VALUES (?,?,?,?,?,?,?);""", 
+                                    (None, now, now, '', 0, id_en, id_ru,))
+            self.db_connection.commit()
+            print (f"{value_ru} >>> Have been added to DB")
+    
+    def update_phrase_because_attempt (self, 
+                                       id_phrase, 
+                                       attemtps_count, 
+                                       date_last_attempt, 
+                                       mistakes_count):
+        pass
     
     def remove_phrase (self, rm_value):
         pass
-
-    def import_data (self):
+    
+    def change_phrase (self, ch_value):
         pass
 
     def export_data (self, file_path="default.csv"):
@@ -108,9 +138,8 @@ class SqlileDb:
 
             
     def close_connetion (self):
-        self.db_cursor.close()
+        # self.db_cursor.close()
         self.db_connection.close()
-
 
 
 class ImportPhrasesFile:
@@ -136,11 +165,16 @@ class ImportPhrasesFile:
         sheet = wb.active
         rows = sheet.max_row
         cols = 2
-        data = []
+        tmp = []
         for i in range(2, rows + 1):
             string = ''
-            data.append([])
+            tmp.append([])
             for j in range(1, cols + 1):
                 cell = sheet.cell(row = i, column = j)
-                data[i-2].append(cell.value) 
-        return (data)
+                tmp[i-2].append(cell.value) 
+        data = []
+        keys = ("en","ru")
+        for i in tmp: data.append(dict(zip(keys,i)))
+        wb.close()
+        
+        return data

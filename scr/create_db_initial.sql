@@ -2,8 +2,10 @@ CREATE TABLE phrases (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 date_create DATETIME,
 date_update DATETAIME,
+date_last_attempt DATETIME,
 knowledge_level TEXT,  -- Уровень знания
-appemtps_count INTEGER DEFAULT 0,
+attemtps_count INTEGER DEFAULT 0,
+mistakes_count INTEGER DEFAULT 0,
 id_en INTEGER,
 id_ru INTEGER,
 FOREIGN KEY (id_en) REFERENCES en (id) ON DELETE CASCADE,
@@ -12,8 +14,8 @@ FOREIGN KEY (id_ru) REFERENCES ru (id) ON DELETE CASCADE
 
 CREATE TABLE en (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
-en_value TEXT NOT NULL);
+en_value TEXT NOT NULL UNIQUE);
 
 CREATE TABLE ru (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
-ru_value TEXT NOT NULL);
+ru_value TEXT NOT NULL UNIQUE);
