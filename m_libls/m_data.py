@@ -58,10 +58,10 @@ class SqlileDb:
         data = self.db_cursor.fetchall()
         
         res = []
-        for record in data: res.append(dict(zip(header, record)))     
-                   
+        for record in data: res.append(dict(zip(header, record)))
         return {'header': header, 'data': res}
-    
+        
+        
     def add_prhase (self, value_en, value_ru):
         # Добвляем запись в таблицу en
         en_can_be_added = False
@@ -123,9 +123,9 @@ class SqlileDb:
     def change_phrase (self, ch_value):
         pass
 
-    def export_data (self, file_path="default.csv"):
+    def export_data (self, file_path):
         
-        if file_path == 'default.csv': file_path = f"export_data.csv"
+        # if file_path == 'default.csv': file_path = f"export_data.csv"
         data = self.get_all_phrases()
         
         export_header = data['header']
