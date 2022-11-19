@@ -3,6 +3,7 @@ import sqlite3
 import datetime
 import csv
 import openpyxl
+from termcolor import cprint
 
 now = datetime.datetime.now()
 
@@ -110,12 +111,27 @@ class SqlileDb:
             self.db_connection.commit()
             print (f"{value_ru} >>> Have been added to DB")
     
-    def update_phrase_because_attempt (self, 
-                                       id_phrase, 
-                                       attemtps_count, 
-                                       date_last_attempt, 
-                                       mistakes_count):
-        pass
+    def update_phrase_because_attempt (self, phrase_id, mistake):
+        # cprint (f"{phrase_id}, {mistake}", color="blue")
+        if mistake:
+            self.db_cursor.execute ("""
+                                    UPDATE phrases
+                                    SET attemtps_count = attemtps_count + 1,
+                                        mistakes_count = mistakes_count + 1,
+                                        knowledge_level = knowledge_level - 1,
+                                        date_last_attempt = ?
+                                    WHERE id = ?
+                                    """, (now,phrase_id,))
+            self.db_connection.commit()
+        else:
+            self.db_cursor.execute ("""
+                                    UPDATE phrases
+                                    SET attemtps_count = attemtps_count + 1,
+                                        knowledge_level = knowledge_level + 1, 
+                                        date_last_attempt = ?
+                                    WHERE id = ?
+                                    """, (now,phrase_id,))
+            self.db_connection.commit()
     
     def remove_phrase (self, rm_value):
         pass

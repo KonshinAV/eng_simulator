@@ -3,7 +3,7 @@ id INTEGER PRIMARY KEY AUTOINCREMENT,
 date_create DATETIME,
 date_update DATETAIME,
 date_last_attempt DATETIME,
-knowledge_level TEXT,  -- Уровень знания
+knowledge_level INTEGER DEFAULT 0,  -- Уровень знания
 attemtps_count INTEGER DEFAULT 0,
 mistakes_count INTEGER DEFAULT 0,
 id_en INTEGER,
