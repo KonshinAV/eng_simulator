@@ -5,7 +5,8 @@ import csv
 import openpyxl
 from termcolor import cprint
 
-now = datetime.datetime.now()
+# now = datetime.datetime.now()
+now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 class SqlileDb:
     def __init__(self, path ):
@@ -63,7 +64,25 @@ class SqlileDb:
         return {'header': header, 'data': res}
         
         
-    def add_prhase (self, value_en, value_ru):
+    def add_prhase (self, 
+                    value_en, 
+                    value_ru,
+                    date_create = now, 
+                    date_update = now,
+                    knowledge_level = 0,
+                    attemtps_count = 0,
+                    date_last_attempt = None,
+                    mistakes_count = 0):
+        
+        # if date_create == None: date_create = now
+        # if date_update == None: date_update = now
+        
+        cprint(f"{type(knowledge_level)}, {knowledge_level}",color='red')
+        
+        # knowledge_level = 0 if knowledge_level is None else knowledge_level
+        # attemtps_count = 0 if attemtps_count is None else attemtps_count 
+        # mistakes_count = 0 if mistakes_count is None else mistakes_count 
+        
         # Добвляем запись в таблицу en
         en_can_be_added = False
         ru_can_be_added = False
@@ -72,7 +91,7 @@ class SqlileDb:
         en_data =list (str(rec[0]).lower().strip() for rec in self.db_cursor.fetchall())
         # print(type (en_data), en_data)
         if str(value_en).lower().strip() in en_data: 
-            print (f"Value {value_en} is alredy in list")
+            cprint (f"[-] Value {value_en} is alredy in list", color='blue')
         else:
             en_can_be_added = True
             # print (f"Value {value_en} can be added")
@@ -81,7 +100,7 @@ class SqlileDb:
         ru_data =list (str(rec[0]).lower().strip() for rec in self.db_cursor.fetchall())
         # print(type (ru_data), ru_data)
         if str(value_ru).lower().strip() in ru_data: 
-            print (f"Value {value_ru} is alredy in list")
+            cprint (f"[-] Value {value_ru} is alredy in list", color='blue')
         else:
             ru_can_be_added = True
             
@@ -105,11 +124,19 @@ class SqlileDb:
                                     knowledge_level, 
                                     attemtps_count, 
                                     id_en, 
-                                    id_ru) 
-                                    VALUES (?,?,?,?,?,?,?);""", 
-                                    (None, now, now, '', 0, id_en, id_ru,))
+                                    id_ru,
+                                    mistakes_count) 
+                                    VALUES (?,?,?,?,?,?,?,?);""", 
+                                    (None, 
+                                     date_create, 
+                                     date_update, 
+                                     knowledge_level, 
+                                     attemtps_count, 
+                                     id_en, 
+                                     id_ru, 
+                                     mistakes_count,))
             self.db_connection.commit()
-            print (f"{value_ru} >>> Have been added to DB")
+            cprint (f"[-] {value_ru} \t Have been added to DB", color='blue')
     
     def update_phrase_because_attempt (self, phrase_id, mistake):
         # cprint (f"{phrase_id}, {mistake}", color="blue")
@@ -121,7 +148,7 @@ class SqlileDb:
                                         knowledge_level = knowledge_level - 1,
                                         date_last_attempt = ?
                                     WHERE id = ?
-                                    """, (now,phrase_id,))
+                                    """, (now, phrase_id,))
             self.db_connection.commit()
         else:
             self.db_cursor.execute ("""
@@ -130,7 +157,7 @@ class SqlileDb:
                                         knowledge_level = knowledge_level + 1, 
                                         date_last_attempt = ?
                                     WHERE id = ?
-                                    """, (now,phrase_id,))
+                                    """, (now, phrase_id,))
             self.db_connection.commit()
     
     def remove_phrase (self, rm_value):
@@ -165,7 +192,7 @@ class ImportPhrasesFile:
             print (">>>File import.xlsx has been created")
             self.create_skeloton_import_file ()
         else:
-            print (">>> File import.xlsx already exists")
+            cprint ("[-] File import.xlsx already exists, nothing to do", color="blue")
 
     
     def create_skeloton_import_file (self):
